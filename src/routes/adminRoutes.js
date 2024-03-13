@@ -24,7 +24,7 @@ const { getAllMessages, getUnreadMessages, deleteMessage, getSingleMessage, repl
  *     description: Retrieve all users.
  *     tags: [Admin]
  *     security:
- *       - bearerAuth: []  # Require the "bearerAuth" token for this endpoint
+ *       - JWTAuth: []  # Require the "bearerAuth" token for this endpoint
  *     responses:
  *       200:
  *         description: Users retrieved successfully.
@@ -34,19 +34,19 @@ router.get("/users", getUsers);
 /**
  * @swagger
  * /admin/user/{id}:
- *   get:
- *     summary: Get a single user
- *     description: Retrieve a single user by ID.
- *     tags: [Users, Admin]
- *     parameters:
+ *    get:
+ *    summary: Get a single user
+ *    description: Retrieve a single user by ID.
+ *    tags: [Users, Admin]
+ *      parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         description: ID of the user to retrieve.
  *         schema:
  *           type: string
- *     security:
- *       - bearerAuth: []  # Require the "bearerAuth" token for this endpoint
+ *      security:
+ *         - bearerAuth: []  # Require the "bearerAuth" token for this endpoint
  *     responses:
  *       200:
  *         description: User retrieved successfully.
