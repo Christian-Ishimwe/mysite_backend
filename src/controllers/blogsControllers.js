@@ -2,9 +2,10 @@ const {BlogPost} = require("../models/blogsModel")
 
 
 const getBlogs = async (req, res) =>{
+    res.setHeader("Access-Control-Allow-Origin", "*");
     try{
         const blogs = await BlogPost.find({isPublished: true})
-            .select('title content image date')
+            .select('title content image date summary')
             .exec()
         if(blogs.length>1){
             return res.status(200).json({
@@ -25,12 +26,13 @@ const getBlogs = async (req, res) =>{
 }
 
 const getOneBlog= async (req, res) =>{
+  //  res.setHeader("Access-Control-Allow-Origin", "*");
     const {id} = req.params
     const currentblog = await BlogPost.findById(id)
     let blog= null
     if(currentblog.allowComments){
          blog=await BlogPost.findById(id)
-        .select('title content summary date image comments')
+        .select('title content summary date image comments allowComments')
         .exec()
        
     }else{
@@ -41,6 +43,7 @@ const getOneBlog= async (req, res) =>{
      return res.status(200).json(blog)
     
 }
+
 const commentBlog = async (req, res) => {
   try {
     if (!req.user) {

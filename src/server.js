@@ -12,6 +12,7 @@ const {authenticateToken}= require("./auth/jwebAdmin")
 const swaggerJsDoc= require("swagger-jsdoc")
 const swaggerUi = require("swagger-ui-express")
 const path = require("path")
+const cloudinary = require("cloudinary")
 
 app = createServer()
 
@@ -48,14 +49,19 @@ const swaggerOptions = {
 
 
 const swaggerSpecs = swaggerJsDoc(swaggerOptions)
-const corsOptions = {
-    origin: 'http://127.0.0.1:5500'
-};
-app.use(cors())
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs))
 const PORT=process.env.PORT || 5000
 const  hostname="127.0.0.1"
 app.listen(PORT, () =>{
+              
+    cloudinary.config({ 
+    cloud_name: process.env.CLOUDINERY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINERY_API_KEY, 
+    api_secret: process.env.CLOUDINERY_SECRET_KEY 
+    });
+
+
     dbConnect()
     console.log(`The server is running on port ${PORT}`)
 })

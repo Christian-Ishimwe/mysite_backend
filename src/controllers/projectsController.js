@@ -1,5 +1,8 @@
 const {Projects} = require("../models/projectsModel")
+const cloudinary = require('cloudinary')
+
 const getProjects = async (req, res) =>{
+    res.setHeader("Access-Control-Allow-Origin", "*");
     try{
         const projects = await Projects.find({isPublished:true})
         .select('title description links image languages')
@@ -23,7 +26,12 @@ const getProjects = async (req, res) =>{
 
 const createProjects = async (req, res) =>{
     try {
-        const {title, description, link, image, languages, isPublished=true} = req.body 
+        const {title, description, link,  languages, isPublished=true} = req.body 
+        let image =''
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            image = result.secure_url; 
+        }
         const newProject= new Projects({
             title,
             description,
@@ -34,7 +42,8 @@ const createProjects = async (req, res) =>{
         })
         await newProject.save()
         return res.status(201).json({
-            message: "New Project Added",
+            message: "New Blog have Been added successful",
+            status: 201,
             newProject
         })
     } catch (error) {
@@ -49,7 +58,11 @@ const adminProjects = async (req, res) =>{
     try {
         const projects = await Projects.find()
         if(projects.length >=1){
-            return res.status(200).json(projects)
+            return res.status(200).json({
+                message: "Getting all projects",
+                status: 200,
+                projects
+            })
         }else{
             return res.status(401).json({
                 message: "No project Yet!"
@@ -89,7 +102,10 @@ const adminSingleProject= async (req, res) =>{
         const {id} = req.params
         const project = await Projects.findById(id)
         if(project){
-            return res.status(200).json(project)
+            return res.status(200).json({
+                status: 200,
+                project
+            })
         }else{
             return res.status(401).json({
                 message: "Not Found"
@@ -127,12 +143,15 @@ const deleteProject =async (req, res) =>{
 
 const updateProject = async (req, res) =>{
     try {
-
         const {id} = req.params
         const updatedData= req.body
         const project = await Projects.findByIdAndUpdate(id, updatedData, {new: true})
         if(project){
-            return res.status(201).json(project)
+            return res.status(201).json({
+                status: 201,
+                message: "The project have been updated!",
+                project
+            })
         }else{
             return res.status(401).json({
                 message: "Not Found"

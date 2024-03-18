@@ -17,7 +17,8 @@ const registerUser= async (req, res) =>{
     })
     await newUser.save()
     return res.status(201).json({
-        msg: "User Created Successful!",
+        message: "User Registered Successful, Please sign in!",
+        status: 201,
         newUser
     })
     }catch(err){
@@ -28,7 +29,8 @@ const registerUser= async (req, res) =>{
     }
    }else{
         res.status(409).json({
-            message: "User with such credentials already exists"
+            message: "User with such credentials already exists",
+            status: 409
         })
    }
 
@@ -37,9 +39,10 @@ const registerUser= async (req, res) =>{
 
 
 const loginUser= async (req, res) =>{
+    res.setHeader("Access-Control-Allow-Origin", "*");
     const {email, password}= req.body
+    console.log(email, password)
     const user = await User.findOne({email})
-  
     if(user){
         const passwordCheck = await bcrypt.compare(password, user.password)
         if(passwordCheck){

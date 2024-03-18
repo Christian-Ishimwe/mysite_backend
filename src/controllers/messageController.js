@@ -37,10 +37,13 @@ const sendMessage= async (req, res) =>{
             telephone
         })
         await newMessage.save()
-        return res.status(201).json(newMessage)
+        return res.status(201).json({
+            status: 201,
+            message: "Message Sent Successful, I will reply as soon as possible"
+        })
     } catch (error) {
         console.log("Error: ", error)
-        return res.status(200).json({
+        return res.status(500).json({
             message: "Internal Server Error"
         })
     }

@@ -4,6 +4,7 @@ const{BlogPost} = require("../models/blogsModel")
 const {Projects} = require("../models/projectsModel")
 const { sendEmail } = require("./messageController")
 const { text } = require("express")
+const cloudinary = require('cloudinary')
 const homePage= (req, res) =>{
     res.status(200).json({
         message:"Admin Dasboard!"
@@ -53,11 +54,13 @@ const deleteUser = async (req, res) =>{
     const user= await User.findByIdAndDelete(id)
     if(user){
         res.status(204).json({
-            message: "User deleted!"
+            message: "User deleted!",
+            status: 204
         })
     }else{
         res.status(401).json({
-            message: "User not found!"
+            message: "User not found!",
+            status: 401
         })
     }
     }catch(err){
@@ -68,41 +71,49 @@ const deleteUser = async (req, res) =>{
     }
 
 }
-const createBlog = async (req, res) =>{
-    try{
-        const {title, content, summary, isPublished=true,image,allowComments=true }= req.body
+const createBlog = async (req, res) => {
+    try {
+        const { title, content, summary, isPublished = true, allowComments = true } = req.body;
+        const imagePath = req.file ? req.file.path : null;
+        let image=''
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            image = result.secure_url; 
+        }
         const newBlog = new BlogPost({
             title,
             content,
             summary,
             isPublished,
-            image,
+            image: image, // Save the image path in the database
             allowComments
-        })
-       
-        await newBlog.save()
-        try{
-             let thisUsers = await Users.find()
-             console.log(thisUsers)
-            for(let i= 0; i< thisUsers.length; i++){
-                  sendEmail(thisUsers[i].email, subject="New Blog Posted", usermessage=`Hi, Check out our new blog post with title of ${title}`)
+        });
+
+        await newBlog.save();
+
+        try {
+            let thisUsers = await Users.find();
+            console.log(thisUsers);
+            for (let i = 0; i < thisUsers.length; i++) {
+                sendEmail(thisUsers[i].email, subject = "New Blog Posted", usermessage = `Hi, Check out our new blog post with title of ${title}`);
             }
-          
-        }catch(error){
-            console.log("Erro: ", error)
-        }finally{
-             return res.status(201).json({
-            message: "Blog Added",
-            newBlog
-        })
+
+        } catch (error) {
+            console.log("Error: ", error);
+        } finally {
+            return res.status(201).json({
+                status: 201,
+                message: "New Blog Added",
+                newBlog
+            });
         }
-    }catch(err){
-        console.log('Error: ', err)
+    } catch (err) {
+        console.log('Error: ', err);
         res.status(500).json({
             message: "Internal Server Error!"
-        })
+        });
     }
-}
+};
 
 
 const deleteBlog = async (req, res) =>{
@@ -173,7 +184,8 @@ const updateBlog = async (req, res) =>{
         if(updateBlog){
             await updateBlog.save()
             return res.status(201).json({
-                message: "Blog Updated",
+                message: "Blog Updated Successful",
+                status:201,
                 updateBlog
             })
         }else{
@@ -190,7 +202,7 @@ const updateBlog = async (req, res) =>{
 }
 
 
-// Projects section
+// Projects
 
 
 

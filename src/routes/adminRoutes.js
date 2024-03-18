@@ -3,6 +3,31 @@ const router = express.Router()
 const {homePage, getUsers, getUser, deleteUser, createBlog, deleteBlog, getBlogs, getOneBlog, updateBlog}= require("../controllers/adminController")
 const {createProjects,updateProject, deleteProject , adminProjects, adminSingleProject} = require("../controllers/projectsController")
 const { getAllMessages, getUnreadMessages, deleteMessage, getSingleMessage, replyMessage, sendMailsToUsers } = require("../controllers/messageController")
+const multer = require('multer')
+const fs = require('fs');
+const path = require('path');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = 'src/uploads/';
+        // Create the directory if it doesn't exist
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname + '-' + Date.now());
+    }
+});
+
+const upload = multer({ storage: storage });
+
+
+router.post("/test", upload.single('image'), function (req, res){
+    console.log(req)
+    res.send("image submitted")
+});
+
 /**
  * @swagger
  * tags:
@@ -205,7 +230,7 @@ router.patch("/blog/:id", updateBlog);
  *         description: Bad request.
  */
 
-router.post("/blogs", createBlog);
+router.post("/blogs", upload.single('image') , createBlog);
 
 /**
  * @swagger
@@ -230,13 +255,12 @@ router.post("/blogs", createBlog);
 
 router.delete("/blog/:id", deleteBlog);
 
-module.exports = router;
 
 
 // Projects
 router.get("/projects", adminProjects)
 router.get("/projects/:id", adminSingleProject)
-router.post("/projects", createProjects)
+router.post("/projects", upload.single('image'),createProjects)
 router.delete("/projects/:id", deleteProject )
 router.patch('/projects/:id', updateProject)
 
@@ -247,4 +271,5 @@ router.get("/messages/:id", getSingleMessage)
 router.delete("/messages/:id", deleteMessage)
 router.post("/messages/:id", replyMessage)
 router.post('/email', sendMailsToUsers)
+
 module.exports=router
