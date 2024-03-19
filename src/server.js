@@ -22,7 +22,7 @@ const swaggerOptions = {
         info: {
             title: "My Site - Christian",
             version: "1.0.0",
-            servers: [
+            servers: [ 
                 {
                     url: "http://localhost:3000/auth",
                     description: "This is my site"
