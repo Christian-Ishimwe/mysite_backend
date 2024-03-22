@@ -7,7 +7,7 @@ const getBlogs = async (req, res) =>{
         const blogs = await BlogPost.find({isPublished: true})
             .select('title content image date summary')
             .exec()
-        if(blogs.length>1){
+        if(blogs.length>=1){
             return res.status(200).json({
                 message: "all Blogs",
                 blogs
