@@ -4,7 +4,7 @@ const {BlogPost} = require("../models/blogsModel")
 const getBlogs = async (req, res) =>{
     res.setHeader("Access-Control-Allow-Origin", "*");
     try{
-        const blogs = await BlogPost.find({isPublished: true})
+        const blogs = await BlogPost.find({isPublished: false})
             .select('title content image date summary')
             .exec()
         if(blogs.length>=1){
